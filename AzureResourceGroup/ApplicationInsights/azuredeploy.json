@@ -144,7 +144,7 @@
   ],
   "outputs": {
     "InstrumentationKey": {
-      "type": "string",
+      "type": "securestring",
       "value": "[reference(resourceId('microsoft.insights/components', parameters('accountName')), '2014-04-01').InstrumentationKey]"
     }
   }
