@@ -11,9 +11,6 @@
     "functionAppName": {
       "value": ""
     },
-    "functionAppApiDefinition": {
-      "value": "https://github.com/marvin-garcia/OceanDebrisRecognition/raw/master/FunctionApp/ApiDefinition.txt"
-    },
     "imagesStorageAccountName": {
       "value": ""
     },

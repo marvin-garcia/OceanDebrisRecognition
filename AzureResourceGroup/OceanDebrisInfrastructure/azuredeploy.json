@@ -86,41 +86,7 @@
     "customVisionTemplateURL": "[concat(parameters('artifactsLocation'), '/OceanDebrisInfrastructure/nested-templates/custom-vision.json')]",
     "appInsightsTemplateURL": "[concat(parameters('artifactsLocation'), '/OceanDebrisInfrastructure/nested-templates/application-insights.json')]",
     "functionAppTemplateURL": "[concat(parameters('artifactsLocation'), '/OceanDebrisInfrastructure/nested-templates/function-app.json')]",
-    "logicAppTemplateURL": "[concat(parameters('artifactsLocation'), '/LogicApp/azuredeploy.json')]",
-    "locationLUT": {
-      "usgovvirginia": "USGov Virginia",
-      "usgoviowa": "USGov Iowa",
-      "usdodeast": "USDoD East",
-      "usdodcentral": "USDoD Central",
-      "usgovtexas": "USGov Texas",
-      "usgovarizona": "USGov Arizona",
-      "eastasia": "East Asia",
-      "southeastasia": "Southeast Asia",
-      "centralus": "Central US",
-      "eastus": "East US",
-      "eastus2": "East US 2",
-      "westus": "West US",
-      "northcentralus": "North Central US",
-      "southcentralus": "South Central US",
-      "northeurope": "North Europe",
-      "westeurope": "West Europe",
-      "japanwest": "Japan West",
-      "japaneast": "Japan East",
-      "brazilsouth": "Brazil South",
-      "australiaeast": "Australia East",
-      "australiasoutheast": "Australia Southeast",
-      "southindia": "South India",
-      "centralindia": "Central India",
-      "westindia": "West India",
-      "canadacentral": "Canada Central",
-      "canadaeast": "Canada East",
-      "uksouth": "UK South",
-      "ukwest": "UK West",
-      "westcentralus": "West Central US",
-      "westus2": "West US 2",
-      "koreacentral": "Korea Central",
-      "koreasouth": "Korea South"
-    },
+    "logicAppTemplateURL": "[concat(parameters('artifactsLocation'), '/LogicApp/LogicApp.json')]",
     "functionName": "OnNewImage",
     "imagesStorageAccountId": "[concat(resourceGroup().id, '/providers/', 'Microsoft.Storage/storageAccounts/', parameters('imagesStorageAccountName'))]"
   },
@@ -232,6 +198,9 @@
       "apiVersion": "2017-05-10",
       "type": "Microsoft.Resources/deployments",
       "name": "LogicApp",
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'FunctionApp')]"
+      ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -243,7 +212,7 @@
             "value": "[parameters('logicAppName')]"
           },
           "logicAppLocation": {
-            "value": "[variables('locationLUT')[resourceGroup().location]]"
+            "value": "[resourceGroup().location]"
           },
           "functionAppName": {
             "value": "[parameters('functionAppName')]"
