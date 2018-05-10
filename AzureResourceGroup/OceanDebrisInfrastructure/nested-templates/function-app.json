@@ -32,12 +32,6 @@
       "metadata": {
         "description": "Cognitive Services CUstom Vision API key"
       }
-    },
-    "artifactsLocation": {
-      "type": "string",
-      "metadata": {
-        "description": "Artifacts location URL"
-      }
     }
   },
   "variables": {
