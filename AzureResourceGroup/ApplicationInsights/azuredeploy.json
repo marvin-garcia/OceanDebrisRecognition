@@ -1,0 +1,151 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "accountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name for the Application Insight account"
+      }
+    },
+    "kind": {
+      "type": "string",
+      "allowedValues": [
+        "web",
+        "other",
+        "store",
+        "java",
+        "ios",
+        "phone"
+      ],
+      "metadata": {
+        "description": "Application Insights account kind"
+      },
+      "defaultValue": "other"
+    },
+    "appType": {
+      "type": "string",
+      "allowedValues": [
+        "web",
+        "other"
+      ],
+      "defaultValue": "other",
+      "metadata": {
+        "description": "Type of application being monitored"
+      }
+    },
+    "flowType": {
+      "type": "string",
+      "allowedValues": [
+        "Bluefield"
+      ],
+      "defaultValue": "Bluefield",
+      "metadata": {
+        "description": "Used by the Application Insights system to determine what kind of flow this component was created by"
+      }
+    },
+    "requestSource": {
+      "type": "string",
+      "allowedValues": [
+        "rest"
+      ],
+      "defaultValue": "rest",
+      "metadata": {
+        "description": "Describes what tool created this Application Insights component"
+      }
+    },
+    "priceCode": {
+      "type": "int",
+      "defaultValue": 1,
+      "allowedValues": [
+        1,
+        2
+      ],
+      "metadata": {
+        "description": "1 = Basic, 2 = Enterprise"
+      }
+    },
+    "dailyQuota": {
+      "type": "int",
+      "defaultValue": 30,
+      "minValue": 1,
+      "metadata": {
+        "description": "Enter daily quota in GB."
+      }
+    },
+    "dailyQuotaResetTime": {
+      "type": "int",
+      "defaultValue": 24,
+      "metadata": {
+        "description": "Enter daily quota reset hour in UTC (0 to 23). Values outside the range will get a random reset hour."
+      }
+    },
+    "warningThreshold": {
+      "type": "int",
+      "defaultValue": 70,
+      "minValue": 1,
+      "maxValue": 100,
+      "metadata": {
+        "description": "Enter the % value of daily quota after which warning mail to be sent."
+      }
+    },
+    "location": {
+      "type": "string",
+      "allowedValues": [
+        "East US",
+        "North Europe",
+        "South Central US",
+        "Southeast Asia",
+        "West Europe",
+        "West US 2"
+      ]
+    }
+  },
+  "variables": {
+    "priceArray": [
+      "Basic",
+      "Application Insights Enterprise"
+    ],
+    "pricePlan": "[take(variables('priceArray'),parameters('priceCode'))]",
+    "billingplan": "[concat(parameters('accountName'),'/', variables('pricePlan')[0])]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2015-05-01",
+      "type": "Microsoft.Insights/components",
+      "name": "[parameters('accountName')]",
+      "location": "[parameters('location')]",
+      "kind": "[parameters('kind')]",
+      "properties": {
+        "Application_Type": "[parameters('appType')]",
+        "Flow_Type": "[parameters('flowType')]",
+        "Request_Source": "[parameters('requestSource')]"
+        //"HockeyAppId": "string",
+        //"SamplingPercentage": "integer"
+      }
+    },
+    {
+      "apiVersion": "2015-05-01",
+      "type": "Microsoft.Insights/components/CurrentBillingFeatures",
+      "name": "[variables('billingplan')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/components', parameters('accountName'))]"
+      ],
+      "properties": {
+        "CurrentBillingFeatures": "[variables('pricePlan')]",
+        "DataVolumeCap": {
+          "Cap": "[parameters('dailyQuota')]",
+          "WarningThreshold": "[parameters('warningThreshold')]",
+          "ResetTime": "[parameters('dailyQuotaResetTime')]"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "InstrumentationKey": {
+      "type": "string",
+      "value": "[reference(resourceId('microsoft.insights/components', parameters('accountName')), '2014-04-01').InstrumentationKey]"
+    }
+  }
+}

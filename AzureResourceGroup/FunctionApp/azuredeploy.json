@@ -1,0 +1,144 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "FunctionAppName": {
+      "type": "string",
+      "metadata": {
+        "description": "FUnction app site name"
+      }
+    },
+    "FunctionAppApiDefinitionUrl": {
+      "type": "string",
+      "metadata": {
+        "description": "function app API definition URL"
+      },
+      "defaultValue": ""
+    },
+    "ImagesStorageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name for the storage account where images are being stored"
+      }
+    },
+    "AppInsightsInstrumentationKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Application Insights account instrumentation key"
+      }
+    },
+    "CustomVisionApiKey": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Cognitive Services CUstom Vision API key"
+      }
+    }
+  },
+  "variables": {
+    "appServicePlanName": "[concat(parameters('FunctionAppName'), 'Plan')]",
+    "appServicePlanSku": {
+      "name": "Y1",
+      "tier": "Dynamic",
+      "size": "Y1",
+      "family": "Y",
+      "capacity": 0
+    },
+    "functionStorageAccountType": "Standard_LRS",
+    "functionStorageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]",
+    "functionStorageAccountId": "[concat(resourceGroup().id, '/providers/', 'Microsoft.Storage/storageAccounts/', variables('functionStorageAccountName'))]",
+    "appInsightsAccountName": "[concat(parameters('FunctionAppName'), 'Insights')]",
+    "appInsightsAccountKind": "other",
+    "appInsightsAccountType": "other",
+    "appInsightsAccountFlowType": "Bluefield",
+    "appInsightsAccountRequestSource": "rest",
+    "appInsightsPricingPlan": "Basic",
+    "appInsightsDailyQuota": 30,
+    "appInsightsDailyQuotaResetTime": 24,
+    "appInsightsWarningThreshold": 70
+  },
+  "resources": [
+    {
+      "apiVersion": "2016-12-01",
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('functionStorageAccountName')]",
+      "location": "[resourceGroup().location]",
+      "kind": "Storage",
+      "sku": {
+        "name": "[variables('functionStorageAccountType')]"
+      }
+    },
+    {
+      "apiVersion": "2016-09-01",
+      "type": "Microsoft.Web/serverfarms",
+      "name": "[variables('appServicePlanName')]",
+      "kind": "functionapp",
+      "sku": "[variables('appServicePlanSku')]",
+      "location": "[resourceGroup().location]",
+      "scale": null,
+      "properties": {
+        "name": "[variables('appServicePlanName')]",
+        "workerTierName": null,
+        "adminSiteName": null,
+        "hostingEnvironmentProfile": null,
+        "perSiteScaling": false,
+        "reserved": false,
+        "targetWorkerCount": 0,
+        "targetWorkerSizeId": 0
+      }
+    },
+    {
+      "apiVersion": "2016-08-01",
+      "type": "Microsoft.Web/sites",
+      "name": "[parameters('FunctionAppName')]",
+      "kind": "functionapp",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "ConcatenateAppSettings",
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('functionStorageAccountName'))]"
+      ],
+      "scale": null,
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "AzureWebJobsDashboard",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('functionStorageAccountName'), ';AccountKey=', listKeys(variables('functionStorageAccountId'),'2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('functionStorageAccountName'), ';AccountKey=', listKeys(variables('functionStorageAccountId'),'2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('functionStorageAccountName'), ';AccountKey=', listKeys(variables('functionStorageAccountId'),'2015-05-01-preview').key1)]"
+            },
+            {
+              "name": "WEBSITE_CONTENTSHARE",
+              "value": "[toLower(parameters('FunctionAppName'))]"
+            },
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~1"
+            },
+            {
+              "name": "WEBSITE_NODE_DEFAULT_VERSION",
+              "value": "6.5.0"
+            },
+            {
+              "name": "StorageAccountName",
+              "value": "[parameters('ImagesStorageAccountName')]"
+            },
+            {
+              "name": "CustomVisionApiKey",
+              "value": "[parameters('CustomVisionApiKey')]"
+            }
+          ],
+          "connectionStrings": []
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}

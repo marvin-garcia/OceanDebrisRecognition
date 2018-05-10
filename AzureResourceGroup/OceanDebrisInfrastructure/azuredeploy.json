@@ -1,0 +1,179 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "customVisionApiName": {
+      "type": "string",
+      "metadata": {
+        "description": "Cognitive Services Custom Vision API nme"
+      }
+    },
+    "customVisionApiSku": {
+      "type": "string",
+      "allowedValues": [
+        "S0",
+        "F0"
+      ],
+      "defaultValue": "F0",
+      "metadata": {
+        "description": "Cognitive Services Custom Vision API nme"
+      }
+    },
+    "functionAppName": {
+      "type": "string",
+      "metadata": {
+        "description": "Function app site name"
+      }
+    },
+    "functionAppApiDefinition": {
+      "type": "string",
+      "metadata": {
+        "description": "Function app API definition URL"
+      },
+      "defaultValue": ""
+    },
+    "imagesStorageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name for the storage account where images will be stored"
+      }
+    },
+    "imagesStorageAccountType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Standard_RAGRS"
+      ],
+      "metadata": {
+        "description": "Storage Account type to keep the images"
+      }
+    },
+    "appInsightsAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Application Insights account name"
+      }
+    },
+    "appInsightsAccountLocation": {
+      "type": "string",
+      "allowedValues": [
+        "East US",
+        "North Europe",
+        "South Central US",
+        "Southeast Asia",
+        "West Europe",
+        "West US 2"
+      ],
+      "metadata": {
+        "description": "Application Insights acount location"
+      }
+    },
+    "logicAppName": {
+      "type": "string",
+      "metadata": {
+        "description": "Logic App name"
+      }
+    },
+    "artifactsLocation": {
+      "type": "string",
+      "metadata": {
+        "description": "Artifacts location URL"
+      }
+    }
+  },
+  "variables": {
+    "customVisionTemplateURL": "[concat(parameters('artifactsLocation'), '/CustomVisionApi/azuredeploy.json')]",
+    "appInsightsTemplateURL": "[concat(parameters('artifactsLocation'), '/ApplicationInsights/azuredeploy.json')]",
+    "functionAppTemplateURL": "[concat(parameters('artifactsLocation'), '/FunctionApp/azuredeploy.json')]",
+    "logicAppTemplateURL": "[concat(parameters('artifactsLocation'), '/LogicApp/azuredeploy.json')]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2016-12-01",
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[parameters('imagesStorageAccountName')]",
+      "location": "[resourceGroup().location]",
+      "kind": "Storage",
+      "sku": {
+        "name": "[parameters('imagesStorageAccountType')]"
+      }
+    },
+    {
+      "apiVersion": "2017-05-10",
+      "type": "Microsoft.Resources/deployments",
+      "name": "CustomVision",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('customVisionTemplateURL')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "CustomVisionApiName": {
+            "value": "[parameters('customVisionApiName')]"
+          },
+          "CustomVisionApiTrainingSku": {
+            "value": "[parameters('customVisionApiSku')]"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "2017-05-10",
+      "type": "Microsoft.Resources/deployments",
+      "name": "ApplicationIsights",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('appInsightsTemplateURL')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "accountName": {
+            "value": "[parameters('appInsightsAccountName')]"
+          },
+          "location": {
+            "value": "[parameters('appInsightsAccountLocation')]"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "2017-05-10",
+      "type": "Microsoft.Resources/deployments",
+      "name": "FunctionApp",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', parameters('imagesStorageAccountName'))]",
+        "CustomVision",
+        "ApplicationInsights"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('functionAppTemplateURL')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "FunctionAppName": {
+            "value": "[parameters('functionAppName')]"
+          },
+          "FunctionAppApiDefinitionUrl": {
+            "value": "[parameters('functionAppApiDefinition')]"
+          },
+          "ImagesStorageAccountName": {
+            "value": "[parameters('imagesStorageAccountName')]"
+          },
+          "AppInsightsInstrumentationKey": {
+            "value": "[reference('ApplicationIsights').outputs.InstrumentationKey.value]"
+          },
+          "CustomVisionApiKey": {
+            "value": "[reference('CustomVision').output.PredictionApiKey.vaue]"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}

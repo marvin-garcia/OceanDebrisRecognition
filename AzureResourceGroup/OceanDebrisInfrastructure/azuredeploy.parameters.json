@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "customVisionApiName": {
+      "value": ""
+    },
+    "customVisionApiSku": {
+      "value": "F0"
+    },
+    "functionAppName": {
+      "value": ""
+    },
+    "functionAppApiDefinition": {
+      "value": ""
+    },
+    "imagesStorageAccountName": {
+      "value": ""
+    },
+    "imagesStorageAccountType": {
+      "value": "Standard_LRS"
+    },
+    "appInsightsAccountName": {
+      "value": ""
+    },
+    "appInsightsAccountLocation": {
+      "value": ""
+    },
+    "logicAppName": {
+      "value": ""
+    },
+    "artifactsLocation": {
+      "value": ""
+    }
+  }
+}
