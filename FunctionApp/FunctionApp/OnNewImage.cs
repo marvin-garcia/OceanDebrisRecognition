@@ -5,7 +5,7 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Newtonsoft.Json;
 
-namespace FuntionApp
+namespace FunctionApp
 {
     public static class OnNewImage
     {
