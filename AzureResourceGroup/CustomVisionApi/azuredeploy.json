@@ -38,7 +38,7 @@
       "type": "Microsoft.CognitiveServices/accounts",
       "name": "[concat(parameters('CustomVisionApiName'), 'Prediction')]",
       "dependsOn": [
-        "[resourceId('Microsoft.CognitiveServices/accounts', parameters('CustomVisionApiName'))]"
+        "[resourceId('Microsoft.CognitiveServices/accounts', concat(parameters('CustomVisionApiName'), 'Training'))]"
       ],
       "sku": {
         "name": "[parameters('CustomVisionApiTrainingSku')]"
