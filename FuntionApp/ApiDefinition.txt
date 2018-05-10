@@ -1,0 +1,58 @@
+swagger: '2.0'
+info:
+  title: aerialobjectrecognition.azurewebsites.net
+  version: 1.0.0
+host: aerialobjectrecognition.azurewebsites.net
+basePath: /
+schemes:
+  - https
+  - http
+paths:
+  /api/OnNewImage:
+    post:
+      operationId: /api/OnNewImage/post
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          description: Image path
+          x-ms-summary: image path
+          x-ms-visibility: important
+          required: true
+          schema:
+            type: object
+            properties:
+              path:
+                description: Image path
+                type: string
+                x-ms-summary: path
+                x-ms-visibility: important
+      description: >-
+        Replace with Operation Object
+        #http://swagger.io/specification/#operationObject
+      responses:
+        '200':
+          description: Success operation
+          x-ms-summary: Message
+          schema:
+            type: object
+            properties:
+              ObjectFound:
+                type: boolean
+                description: Whether an object was found in the image
+                x-ms-summary: ObjectFound
+              ImageUrl:
+                type: string
+                description: Image URL
+                x-ms-summary: ImageUrl
+      security:
+        - apikeyQuery: []
+definitions: {}
+securityDefinitions:
+  apikeyQuery:
+    type: apiKey
+    name: code
+    in: query
