@@ -25,13 +25,6 @@
         "description": "Function app site name"
       }
     },
-    "functionAppApiDefinition": {
-      "type": "string",
-      "metadata": {
-        "description": "Function app API definition URL"
-      },
-      "defaultValue": ""
-    },
     "imagesStorageAccountName": {
       "type": "string",
       "metadata": {
@@ -158,9 +151,6 @@
         "parameters": {
           "FunctionAppName": {
             "value": "[parameters('functionAppName')]"
-          },
-          "FunctionAppApiDefinitionUrl": {
-            "value": "[parameters('functionAppApiDefinition')]"
           },
           "artifactsLocation": {
             "value": "[parameters('artifactsLocation')]"

@@ -8,13 +8,6 @@
         "description": "FUnction app site name"
       }
     },
-    "FunctionAppApiDefinitionUrl": {
-      "type": "string",
-      "metadata": {
-        "description": "function app API definition URL"
-      },
-      "defaultValue": ""
-    },
     "appSettings": {
       "type": "array",
       "defaultValue": [],
