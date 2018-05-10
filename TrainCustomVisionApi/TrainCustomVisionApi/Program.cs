@@ -101,6 +101,14 @@ namespace TrainCustomVisionApi
                 await trainingApi.UpdateIterationAsync(project.Id, iteration.Id, iteration);
                 #endregion
 
+                Console.WriteLine(
+$@"\n
+Your custom vision project ID is {project.Id.ToString()}.
+
+Copy this Guid and add it to your application settings under the name 'CustomVisionProjectId'
+"
+);
+
                 Console.WriteLine("\nFinished. Press Enter to exit");
                 Console.Read();
 
