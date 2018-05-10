@@ -38,11 +38,11 @@
   ],
   "outputs": {
     "PrimaryKey": {
-      "type": "securestring",
+      "type": "string",
       "value": "[listKeys(variables('storageAccountId'), '2017-10-01').keys[0].value]"
     },
     "SecondaryKey": {
-      "type": "securestring",
+      "type": "string",
       "value": "[listKeys(variables('storageAccountId'), '2017-10-01').keys[1].value]"
     }
   }
