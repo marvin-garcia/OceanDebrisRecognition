@@ -37,9 +37,13 @@
     }
   ],
   "outputs": {
-    "Keys": {
-      "type": "array",
-      "value": "[listKeys(variables('storageAccountId'), '2017-10-01').keys]"
+    "PrimaryKey": {
+      "type": "securestring",
+      "value": "[listKeys(variables('storageAccountId'), '2017-10-01').keys[0].value]"
+    },
+    "SecondaryKey": {
+      "type": "securestring",
+      "value": "[listKeys(variables('storageAccountId'), '2017-10-01').keys[1].value]"
     }
   }
 }
