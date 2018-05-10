@@ -29,7 +29,7 @@ namespace AerialObjectRecognitionFunction
 
                 // Get image url
                 string imagePath = data.path;
-                string imageUrl = $"https://{ConfigurationManager.AppSettings["StorageAccountName"]}.blob.core.windows.net{imagePath}";
+                string imageUrl = $"https://{ConfigurationManager.AppSettings["ImagesStorageAccountName"]}.blob.core.windows.net{imagePath}";
 
                 log.Info(imageUrl);
 
