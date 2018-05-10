@@ -33,8 +33,7 @@
     </None>
     <Content Include="Deploy-AzureResourceGroup.ps1" />
     <None Include="nested-templates\application-insights.json" />
-    <None Include="parameters\storage-account.parameters.json" />
-    <None Include="parameters\function-app.parameters.json" />
+    <None Include="nested-templates\concat-arrays.json" />
   </ItemGroup>
   <Target Name="GetReferenceAssemblyPaths" />
 </Project>

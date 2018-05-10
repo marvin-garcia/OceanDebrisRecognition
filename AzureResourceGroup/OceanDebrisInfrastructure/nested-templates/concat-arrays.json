@@ -1,0 +1,28 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "array1": {
+      "type": "array",
+      "metadata": {
+        "description": "Array #1 to concatenate"
+      }
+    },
+    "array2": {
+      "type": "array",
+      "metadata": {
+        "description": "Array #2 to concatenate"
+      }
+    }
+  },
+  "variables": {
+    "finalArray": "[concat(parameters('array1'), parameters('array2'))]"
+  },
+  "resources": [],
+  "outputs": {
+    "array": {
+      "type": "array",
+      "value": "[variables('finalArray')]"
+    }
+  }
+}

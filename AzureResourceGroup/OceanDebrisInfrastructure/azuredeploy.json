@@ -162,14 +162,36 @@
           "FunctionAppApiDefinitionUrl": {
             "value": "[parameters('functionAppApiDefinition')]"
           },
-          "ImagesStorageAccountName": {
-            "value": "[parameters('imagesStorageAccountName')]"
+          "artifactsLocation": {
+            "value": "[parameters('artifactsLocation')]"
           },
-          "AppInsightsInstrumentationKey": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'ApplicationInsights')).outputs.InstrumentationKey.value]"
-          },
-          "CustomVisionApiKey": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'CustomVision')).outputs.PredictionApiKey.value]"
+          "appSettings": {
+            "value": [
+              {
+                "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+                "value": "[reference(resourceId('Microsoft.Resources/deployments', 'ApplicationInsights')).outputs.InstrumentationKey.value]"
+              },
+              {
+                "name": "ImagesStorageAccountName",
+                "value": "[parameters('imagesStorageAccountName')]"
+              },
+              {
+                "name": "CustomVisionProjectId",
+                "value": ""
+              },
+              {
+                "name": "CustomVisionApiKey",
+                "value": "[reference(resourceId('Microsoft.Resources/deployments', 'CustomVision')).outputs.PredictionApiKey.value]"
+              },
+              {
+                "name": "ObjectTagName",
+                "value": "Object"
+              },
+              {
+                "name": "OceanTagName",
+                "value": "Ocean"
+              }
+            ]
           }
         }
       }

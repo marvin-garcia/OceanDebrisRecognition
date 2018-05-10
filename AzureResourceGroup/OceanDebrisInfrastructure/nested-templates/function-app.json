@@ -15,22 +15,18 @@
       },
       "defaultValue": ""
     },
-    "ImagesStorageAccountName": {
+    "appSettings": {
+      "type": "array",
+      "defaultValue": [],
+      "metadata": {
+        "description": "Additional application settings to apply to the function app"
+      }
+    },
+
+    "artifactsLocation": {
       "type": "string",
       "metadata": {
-        "description": "Name for the storage account where images are being stored"
-      }
-    },
-    "AppInsightsInstrumentationKey": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Application Insights account instrumentation key"
-      }
-    },
-    "CustomVisionApiKey": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Cognitive Services CUstom Vision API key"
+        "description": "Artifacts location URL"
       }
     }
   },
@@ -45,9 +41,55 @@
     },
     "storageAccountType": "Standard_LRS",
     "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]",
-    "storageAccountId": "[concat(resourceGroup().id, '/providers/', 'Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
+    "storageAccountId": "[concat(resourceGroup().id, '/providers/', 'Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
+    "concatArraysTemplateURL": "[concat(parameters('artifactsLocation'), '/nested-templates/concat-arrays.json')]"
   },
   "resources": [
+    {
+      "apiVersion": "2017-05-10",
+      "name": "ConcatenateAppSettings",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('concatArraysTemplateURL')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "array1": {
+            "value": [
+              {
+                "name": "AzureWebJobsDashboard",
+                "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountId'), '2017-10-01').keys[0].value)]"
+              },
+              {
+                "name": "AzureWebJobsStorage",
+                "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountId'), '2017-10-01').keys[0].value)]"
+              },
+              {
+                "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+                "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountId'), '2017-10-01').keys[0].value)]"
+              },
+              {
+                "name": "WEBSITE_CONTENTSHARE",
+                "value": "[toLower(parameters('FunctionAppName'))]"
+              },
+              {
+                "name": "FUNCTIONS_EXTENSION_VERSION",
+                "value": "~1"
+              },
+              {
+                "name": "WEBSITE_NODE_DEFAULT_VERSION",
+                "value": "6.5.0"
+              }
+            ]
+          },
+          "array2": {
+            "value": "[parameters('appSettings')]"
+          }
+        }
+      }
+    },
     {
       "apiVersion": "2017-10-01",
       "type": "Microsoft.Storage/storageAccounts",
@@ -84,6 +126,7 @@
       "kind": "functionapp",
       "location": "[resourceGroup().location]",
       "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'ConcatenateAppSettings')]",
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
         "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
       ],
@@ -91,44 +134,7 @@
       "properties": {
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
         "siteConfig": {
-          "appSettings": [
-            {
-              "name": "AzureWebJobsDashboard",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountId'), '2017-10-01').keys[0].value)]"
-            },
-            {
-              "name": "AzureWebJobsStorage",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountId'), '2017-10-01').keys[0].value)]"
-            },
-            {
-              "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountId'), '2017-10-01').keys[0].value)]"
-            },
-            {
-              "name": "WEBSITE_CONTENTSHARE",
-              "value": "[toLower(parameters('FunctionAppName'))]"
-            },
-            {
-              "name": "FUNCTIONS_EXTENSION_VERSION",
-              "value": "~1"
-            },
-            {
-              "name": "WEBSITE_NODE_DEFAULT_VERSION",
-              "value": "6.5.0"
-            },
-            {
-              "name": "ImagesStorageAccountName",
-              "value": "[parameters('ImagesStorageAccountName')]"
-            },
-            {
-              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-              "value": "[parameters('AppInsightsInstrumentationKey')]"
-            },
-            {
-              "name": "CustomVisionApiKey",
-              "value": "[parameters('CustomVisionApiKey')]"
-            }
-          ],
+          "appSettings": "[array(reference('ConcatenateAppSettings').outputs.array.value)]",
           "connectionStrings": []
         }
       }
