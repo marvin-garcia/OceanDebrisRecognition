@@ -37,9 +37,9 @@
     }
   ],
   "outputs": {
-    "PrimaryKey": {
-      "type": "string",
-      "value": "[listKeys(variables('storageAccountId'),'2017-10-01').keys.key1.value]"
+    "Keys": {
+      "type": "array",
+      "value": "[listKeys(variables('storageAccountId'), '2017-10-01').keys]"
     }
   }
 }
