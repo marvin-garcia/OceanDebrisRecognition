@@ -84,7 +84,6 @@
     }
   },
   "variables": {
-    "storageAccountTemplateURL": "[concat(parameters('artifactsLocation'), '/nested-templates/storage-account.json')]",
     "customVisionTemplateURL": "[concat(parameters('artifactsLocation'), '/nested-templates/custom-vision.json')]",
     "appInsightsTemplateURL": "[concat(parameters('artifactsLocation'), '/nested-templates/application-insights.json')]",
     "functionAppTemplateURL": "[concat(parameters('artifactsLocation'), '/nested-templates/function-app.json')]",
@@ -92,7 +91,7 @@
   },
   "resources": [
     {
-      "apiVersion": "2016-12-01",
+      "apiVersion": "2017-10-01",
       "type": "Microsoft.Storage/storageAccounts",
       "name": "[parameters('imagesStorageAccountName')]",
       "location": "[resourceGroup().location]",
@@ -167,25 +166,14 @@
             "value": "[parameters('imagesStorageAccountName')]"
           },
           "AppInsightsInstrumentationKey": {
-            "value": "whatever"
-            //"value": "[reference('ApplicationInsights').outputs.InstrumentationKey.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'ApplicationInsights')).outputs.InstrumentationKey.value]"
           },
           "CustomVisionApiKey": {
-            "value": "whatever"
-            //"value": "[reference('CustomVision').outputs.PredictionApiKey.value.key1]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'CustomVision')).outputs.PredictionApiKey.value]"
           }
         }
       }
     }
   ],
-  "outputs": {
-    "AppInsightsKey": {
-      "type": "string",
-      "value": "[reference('ApplicationInsights').outputs.InstrumentationKey.value]"
-    },
-    "VisionApiKey": {
-      "type": "string",
-      "value": "[reference('CustomVision').outputs.PredictionApiKey.value.Key1]"
-    }
-  }
+  "outputs": {}
 }

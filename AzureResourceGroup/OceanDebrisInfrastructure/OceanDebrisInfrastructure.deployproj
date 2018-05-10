@@ -25,6 +25,7 @@
   <ItemGroup>
     <Content Include="azuredeploy.json" />
     <Content Include="azuredeploy.parameters.json" />
+    <Content Include="parameters\azuredeploy.parameters.json" />
     <Content Include="nested-templates\function-app.json" />
     <Content Include="nested-templates\custom-vision.json" />
     <None Include="Deployment.targets">
@@ -32,10 +33,8 @@
     </None>
     <Content Include="Deploy-AzureResourceGroup.ps1" />
     <None Include="nested-templates\application-insights.json" />
-    <None Include="nested-templates\storage-account.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="parameters\" />
+    <None Include="parameters\storage-account.parameters.json" />
+    <None Include="parameters\function-app.parameters.json" />
   </ItemGroup>
   <Target Name="GetReferenceAssemblyPaths" />
 </Project>
