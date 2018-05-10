@@ -21,11 +21,45 @@
   },
   "variables": {
     "trainingApiName": "[concat(parameters('CustomVisionApiName'), 'Training')]",
-    "predictionApiName": "[concat(parameters('CustomVisionApiName'), 'Prediction')]"
+    "predictionApiName": "[concat(parameters('CustomVisionApiName'), 'Prediction')]",
+    "locationLUT": {
+      "usgovvirginia": "USGov Virginia",
+      "usgoviowa": "USGov Iowa",
+      "usdodeast": "USDoD East",
+      "usdodcentral": "USDoD Central",
+      "usgovtexas": "USGov Texas",
+      "usgovarizona": "USGov Arizona",
+      "eastasia": "East Asia",
+      "southeastasia": "Southeast Asia",
+      "centralus": "Central US",
+      "eastus": "East US",
+      "eastus2": "East US 2",
+      "westus": "West US",
+      "northcentralus": "North Central US",
+      "southcentralus": "South Central US",
+      "northeurope": "North Europe",
+      "westeurope": "West Europe",
+      "japanwest": "Japan West",
+      "japaneast": "Japan East",
+      "brazilsouth": "Brazil South",
+      "australiaeast": "Australia East",
+      "australiasoutheast": "Australia Southeast",
+      "southindia": "South India",
+      "centralindia": "Central India",
+      "westindia": "West India",
+      "canadacentral": "Canada Central",
+      "canadaeast": "Canada East",
+      "uksouth": "UK South",
+      "ukwest": "UK West",
+      "westcentralus": "West Central US",
+      "westus2": "West US 2",
+      "koreacentral": "Korea Central",
+      "koreasouth": "Korea South"
+    }
   },
   "resources": [
     {
-      "apiVersion": "2016-02-01-preview",
+      "apiVersion": "2017-04-18",
       "type": "Microsoft.CognitiveServices/accounts",
       "kind": "CustomVision.Training",
       "name": "[variables('trainingApiName')]",
@@ -37,7 +71,7 @@
       "properties": {}
     },
     {
-      "apiVersion": "2016-02-01-preview",
+      "apiVersion": "2017-04-18",
       "type": "Microsoft.CognitiveServices/accounts",
       "kind": "CustomVision.Prediction",
       "name": "[variables('predictionApiName')]",
@@ -55,11 +89,11 @@
   "outputs": {
     "TrainingApiKey": {
       "type": "securestring",
-      "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('trainingApiName')), '2015-04-08').Key1]"
+      "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('trainingApiName')), '2017-04-18').Key1]"
     },
     "PredictionApiKey": {
       "type": "securestring",
-      "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('predictionApiName')), '2015-04-08').Key1]"
+      "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('predictionApiName')), '2017-04-18').Key1]"
     }
   }
 }
