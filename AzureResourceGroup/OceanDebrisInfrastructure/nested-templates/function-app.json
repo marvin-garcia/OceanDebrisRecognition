@@ -51,27 +51,18 @@
     },
     "storageAccountTemplateURL": "[concat(parameters('artifactsLocation'), '/nested-templates/storage-account.json')]",
     "storageAccountType": "Standard_LRS",
-    "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]"
+    "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]",
+    "storageAccountId": "[concat(resourceGroup().id, '/providers/', 'Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
   },
   "resources": [
     {
-      "apiVersion": "2017-05-10",
-      "type": "Microsoft.Resources/deployments",
-      "name": "StorageAccount",
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('storageAccountTemplateURL')]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "storageAccountName": {
-            "value": "[variables('storageAccountName')]"
-          },
-          "storageAccountType": {
-            "value": "[variables('storageAccountType')]"
-          }
-        }
+      "apiVersion": "2017-10-01",
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[variables('storageAccountName')]",
+      "location": "[resourceGroup().location]",
+      "kind": "Storage",
+      "sku": {
+        "name": "[variables('storageAccountType')]"
       }
     },
     {
@@ -100,9 +91,8 @@
       "kind": "functionapp",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'StorageAccount')]",
-        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
       ],
       "scale": null,
       "properties": {
@@ -111,15 +101,15 @@
           "appSettings": [
             {
               "name": "AzureWebJobsDashboard",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', reference('StorageAccount').outputs.value)]"
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountId'), '2017-10-01').keys[0].value)]"
             },
             {
               "name": "AzureWebJobsStorage",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', reference('StorageAccount').outputs.value)]"
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountId'), '2017-10-01').keys[0].value)]"
             },
             {
               "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', reference('StorageAccount').outputs.value)]"
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(variables('storageAccountId'), '2017-10-01').keys[0].value)]"
             },
             {
               "name": "WEBSITE_CONTENTSHARE",
