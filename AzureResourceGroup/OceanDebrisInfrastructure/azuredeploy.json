@@ -84,9 +84,10 @@
     }
   },
   "variables": {
-    "customVisionTemplateURL": "[concat(parameters('artifactsLocation'), '/CustomVisionApi/azuredeploy.json')]",
-    "appInsightsTemplateURL": "[concat(parameters('artifactsLocation'), '/ApplicationInsights/azuredeploy.json')]",
-    "functionAppTemplateURL": "[concat(parameters('artifactsLocation'), '/FunctionApp/azuredeploy.json')]",
+    "storageAccountTemplateURL": "[concat(parameters('artifactsLocation'), '/nested-templates/storage-account.json')]",
+    "customVisionTemplateURL": "[concat(parameters('artifactsLocation'), '/nested-templates/custom-vision.json')]",
+    "appInsightsTemplateURL": "[concat(parameters('artifactsLocation'), '/nested-templates/application-insights.json')]",
+    "functionAppTemplateURL": "[concat(parameters('artifactsLocation'), '/nested-templates/function-app.json')]",
     "logicAppTemplateURL": "[concat(parameters('artifactsLocation'), '/LogicApp/azuredeploy.json')]"
   },
   "resources": [
@@ -123,7 +124,7 @@
     {
       "apiVersion": "2017-05-10",
       "type": "Microsoft.Resources/deployments",
-      "name": "ApplicationIsights",
+      "name": "ApplicationInsights",
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -146,8 +147,8 @@
       "name": "FunctionApp",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', parameters('imagesStorageAccountName'))]",
-        "CustomVision",
-        "ApplicationInsights"
+        "[resourceId('Microsoft.Resources/deployments', 'CustomVision')]",
+        "[resourceId('Microsoft.Resources/deployments', 'ApplicationInsights')]"
       ],
       "properties": {
         "mode": "Incremental",
@@ -166,14 +167,25 @@
             "value": "[parameters('imagesStorageAccountName')]"
           },
           "AppInsightsInstrumentationKey": {
-            "value": "[reference('ApplicationIsights').outputs.InstrumentationKey.value]"
+            "value": "whatever"
+            //"value": "[reference('ApplicationInsights').outputs.InstrumentationKey.value]"
           },
           "CustomVisionApiKey": {
-            "value": "[reference('CustomVision').output.PredictionApiKey.vaue]"
+            "value": "whatever"
+            //"value": "[reference('CustomVision').outputs.PredictionApiKey.value.key1]"
           }
         }
       }
     }
   ],
-  "outputs": {}
+  "outputs": {
+    "AppInsightsKey": {
+      "type": "string",
+      "value": "[reference('ApplicationInsights').outputs.InstrumentationKey.value]"
+    },
+    "VisionApiKey": {
+      "type": "string",
+      "value": "[reference('CustomVision').outputs.PredictionApiKey.value.Key1]"
+    }
+  }
 }

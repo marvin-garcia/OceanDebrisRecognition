@@ -32,6 +32,12 @@
       "metadata": {
         "description": "Cognitive Services CUstom Vision API key"
       }
+    },
+    "artifactsLocation": {
+      "type": "string",
+      "metadata": {
+        "description": "Artifacts location URL"
+      }
     }
   },
   "variables": {
@@ -43,28 +49,29 @@
       "family": "Y",
       "capacity": 0
     },
-    "functionStorageAccountType": "Standard_LRS",
-    "functionStorageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]",
-    "functionStorageAccountId": "[concat(resourceGroup().id, '/providers/', 'Microsoft.Storage/storageAccounts/', variables('functionStorageAccountName'))]",
-    "appInsightsAccountName": "[concat(parameters('FunctionAppName'), 'Insights')]",
-    "appInsightsAccountKind": "other",
-    "appInsightsAccountType": "other",
-    "appInsightsAccountFlowType": "Bluefield",
-    "appInsightsAccountRequestSource": "rest",
-    "appInsightsPricingPlan": "Basic",
-    "appInsightsDailyQuota": 30,
-    "appInsightsDailyQuotaResetTime": 24,
-    "appInsightsWarningThreshold": 70
+    "storageAccountTemplateURL": "[concat(parameters('artifactsLocation'), '/nested-templates/storage-account.json')]",
+    "storageAccountType": "Standard_LRS",
+    "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]"
   },
   "resources": [
     {
-      "apiVersion": "2017-10-01",
-      "type": "Microsoft.Storage/storageAccounts",
-      "name": "[variables('functionStorageAccountName')]",
-      "location": "[resourceGroup().location]",
-      "kind": "Storage",
-      "sku": {
-        "name": "[variables('functionStorageAccountType')]"
+      "apiVersion": "2017-05-10",
+      "type": "Microsoft.Resources/deployments",
+      "name": "StorageAccount",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('storageAccountTemplateURL')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "storageAccountName": {
+            "value": "[variables('storageAccountName')]"
+          },
+          "storageAccountType": {
+            "value": "[variables('storageAccountType')]"
+          }
+        }
       }
     },
     {
@@ -93,8 +100,9 @@
       "kind": "functionapp",
       "location": "[resourceGroup().location]",
       "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'StorageAccount')]",
         "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', variables('functionStorageAccountName'))]"
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ],
       "scale": null,
       "properties": {
@@ -103,15 +111,15 @@
           "appSettings": [
             {
               "name": "AzureWebJobsDashboard",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('functionStorageAccountName'), ';AccountKey=', listKeys(variables('functionStorageAccountId'),'2017-10-01')[0].value)]"
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', reference('StorageAccount').outputs.value)]"
             },
             {
               "name": "AzureWebJobsStorage",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('functionStorageAccountName'), ';AccountKey=', listKeys(variables('functionStorageAccountId'),'2017-10-01')[0].value)]"
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', reference('StorageAccount').outputs.value)]"
             },
             {
               "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
-              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('functionStorageAccountName'), ';AccountKey=', listKeys(variables('functionStorageAccountId'),'2017-10-01')[0].value)]"
+              "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', reference('StorageAccount').outputs.value)]"
             },
             {
               "name": "WEBSITE_CONTENTSHARE",

@@ -3,34 +3,34 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "customVisionApiName": {
-      "value": ""
+      "value": "CustomVision"
     },
     "customVisionApiSku": {
       "value": "F0"
     },
     "functionAppName": {
-      "value": ""
+      "value": "DebrisRecognitionFunction"
     },
     "functionAppApiDefinition": {
-      "value": ""
+      "value": "https://github.com/marvin-garcia/OceanDebrisRecognition/raw/master/FunctionApp/ApiDefinition.txt"
     },
     "imagesStorageAccountName": {
-      "value": ""
+      "value": "debrisimagesstorage"
     },
     "imagesStorageAccountType": {
       "value": "Standard_LRS"
     },
     "appInsightsAccountName": {
-      "value": ""
+      "value": "DebrisRecognitionAppInsights"
     },
     "appInsightsAccountLocation": {
-      "value": ""
+      "value": "South Central US"
     },
     "logicAppName": {
-      "value": ""
+      "value": "DebrisRecognitionApp"
     },
     "artifactsLocation": {
-      "value": ""
+      "value": "https://github.com/marvin-garcia/OceanDebrisRecognition/raw/master/AzureResourceGroup"
     }
   }
 }
