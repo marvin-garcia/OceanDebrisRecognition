@@ -93,7 +93,6 @@
       "kind": "functionapp",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "ConcatenateAppSettings",
         "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
         "[resourceId('Microsoft.Storage/storageAccounts', variables('functionStorageAccountName'))]"
       ],
