@@ -49,7 +49,6 @@
       "family": "Y",
       "capacity": 0
     },
-    "storageAccountTemplateURL": "[concat(parameters('artifactsLocation'), '/nested-templates/storage-account.json')]",
     "storageAccountType": "Standard_LRS",
     "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]",
     "storageAccountId": "[concat(resourceGroup().id, '/providers/', 'Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"

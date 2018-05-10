@@ -88,11 +88,11 @@
   ],
   "outputs": {
     "TrainingApiKey": {
-      "type": "securestring",
+      "type": "string",
       "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('trainingApiName')), '2017-04-18').Key1]"
     },
     "PredictionApiKey": {
-      "type": "securestring",
+      "type": "string",
       "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('predictionApiName')), '2017-04-18').Key1]"
     }
   }
