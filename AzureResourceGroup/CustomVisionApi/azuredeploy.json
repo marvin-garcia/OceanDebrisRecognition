@@ -19,16 +19,19 @@
       }
     }
   },
-  "variables": {},
+  "variables": {
+    "trainingApiName": "[concat(parameters('CustomVisionApiName'), 'Training')]",
+    "predictionApiName": "[concat(parameters('CustomVisionApiName'), 'Prediction')]"
+  },
   "resources": [
     {
       "apiVersion": "2016-02-01-preview",
       "type": "Microsoft.CognitiveServices/accounts",
-      "name": "[concat(parameters('CustomVisionApiName'), 'Training')]",
+      "kind": "CustomVision.Training",
+      "name": "[variables('trainingApiName')]",
       "sku": {
         "name": "[parameters('CustomVisionApiTrainingSku')]"
       },
-      "kind": "CustomVision.Training",
       "location": "[resourceGroup().location]",
       "scale": null,
       "properties": {}
@@ -36,14 +39,14 @@
     {
       "apiVersion": "2016-02-01-preview",
       "type": "Microsoft.CognitiveServices/accounts",
-      "name": "[concat(parameters('CustomVisionApiName'), 'Prediction')]",
+      "kind": "CustomVision.Prediction",
+      "name": "[variables('predictionApiName')]",
       "dependsOn": [
-        "[resourceId('Microsoft.CognitiveServices/accounts', concat(parameters('CustomVisionApiName'), 'Training'))]"
+        "[resourceId('Microsoft.CognitiveServices/accounts', variables('trainingApiName'))]"
       ],
       "sku": {
         "name": "[parameters('CustomVisionApiTrainingSku')]"
       },
-      "kind": "CustomVision.Prediction",
       "location": "[resourceGroup().location]",
       "scale": null,
       "properties": {}
@@ -52,11 +55,11 @@
   "outputs": {
     "TrainingApiKey": {
       "type": "securestring",
-      "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', concat(parameters('CustomVisionApiName'), 'Training')), '2015-04-08').Key1]"
+      "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('trainingApiName')), '2015-04-08').Key1]"
     },
     "PredictionApiKey": {
       "type": "securestring",
-      "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', concat(parameters('CustomVisionApiName'), 'Prediction')), '2015-04-08').Key1]"
+      "value": "[listKeys(resourceId('Microsoft.CognitiveServices/accounts', variables('predictionApiName')), '2015-04-08').Key1]"
     }
   }
 }
