@@ -3,7 +3,25 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "logicAppName": {
-      "value": null
+      "value": "DebrisRecognitionApp"
+    },
+    "logicAppLocation": {
+      "value": "southcentralus"
+    },
+    "functionAppName": {
+      "value": "DebrisRecognitionFunction"
+    },
+    "functionName": {
+      "value": "OnNewImage"
+    },
+    "emailRecipient": {
+      "value": "magar@microsoft.com"
+    },
+    "azureblob_1_accountName": {
+      "value": "debrisimagesstorage"
+    },
+    "azureblob_1_accessKey": {
+      "value": "b/KAeY52ykKKjCsXijxr+XL0JnGyeCphB+6tPRNuGjCHS9A7wgHh6wsVoblT4+5pwYpCFpw7jfcYalkiWnKGJw=="
     }
   }
 }

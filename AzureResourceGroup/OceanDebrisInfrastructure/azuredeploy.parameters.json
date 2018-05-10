@@ -29,6 +29,9 @@
     "logicAppName": {
       "value": ""
     },
+    "emailRecipient": {
+      "value": ""
+    },
     "artifactsLocation": {
       "value": "https://github.com/marvin-garcia/OceanDebrisRecognition/raw/master/AzureResourceGroup/OceanDebrisInfrastructure"
     }

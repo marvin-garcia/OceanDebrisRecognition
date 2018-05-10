@@ -69,6 +69,12 @@
         "description": "Logic App name"
       }
     },
+    "emailRecipient": {
+      "type": "string",
+      "metadata": {
+        "description": "Email address to send notification email"
+      }
+    },
     "artifactsLocation": {
       "type": "string",
       "metadata": {
@@ -77,10 +83,46 @@
     }
   },
   "variables": {
-    "customVisionTemplateURL": "[concat(parameters('artifactsLocation'), '/nested-templates/custom-vision.json')]",
-    "appInsightsTemplateURL": "[concat(parameters('artifactsLocation'), '/nested-templates/application-insights.json')]",
-    "functionAppTemplateURL": "[concat(parameters('artifactsLocation'), '/nested-templates/function-app.json')]",
-    "logicAppTemplateURL": "[concat(parameters('artifactsLocation'), '/LogicApp/azuredeploy.json')]"
+    "customVisionTemplateURL": "[concat(parameters('artifactsLocation'), '/OceanDebrisInfrastructure/nested-templates/custom-vision.json')]",
+    "appInsightsTemplateURL": "[concat(parameters('artifactsLocation'), '/OceanDebrisInfrastructure/nested-templates/application-insights.json')]",
+    "functionAppTemplateURL": "[concat(parameters('artifactsLocation'), '/OceanDebrisInfrastructure/nested-templates/function-app.json')]",
+    "logicAppTemplateURL": "[concat(parameters('artifactsLocation'), '/LogicApp/azuredeploy.json')]",
+    "locationLUT": {
+      "usgovvirginia": "USGov Virginia",
+      "usgoviowa": "USGov Iowa",
+      "usdodeast": "USDoD East",
+      "usdodcentral": "USDoD Central",
+      "usgovtexas": "USGov Texas",
+      "usgovarizona": "USGov Arizona",
+      "eastasia": "East Asia",
+      "southeastasia": "Southeast Asia",
+      "centralus": "Central US",
+      "eastus": "East US",
+      "eastus2": "East US 2",
+      "westus": "West US",
+      "northcentralus": "North Central US",
+      "southcentralus": "South Central US",
+      "northeurope": "North Europe",
+      "westeurope": "West Europe",
+      "japanwest": "Japan West",
+      "japaneast": "Japan East",
+      "brazilsouth": "Brazil South",
+      "australiaeast": "Australia East",
+      "australiasoutheast": "Australia Southeast",
+      "southindia": "South India",
+      "centralindia": "Central India",
+      "westindia": "West India",
+      "canadacentral": "Canada Central",
+      "canadaeast": "Canada East",
+      "uksouth": "UK South",
+      "ukwest": "UK West",
+      "westcentralus": "West Central US",
+      "westus2": "West US 2",
+      "koreacentral": "Korea Central",
+      "koreasouth": "Korea South"
+    },
+    "functionName": "OnNewImage",
+    "imagesStorageAccountId": "[concat(resourceGroup().id, '/providers/', 'Microsoft.Storage/storageAccounts/', parameters('imagesStorageAccountName'))]"
   },
   "resources": [
     {
@@ -182,6 +224,41 @@
                 "value": "Ocean"
               }
             ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "2017-05-10",
+      "type": "Microsoft.Resources/deployments",
+      "name": "LogicApp",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('logicAppTemplateURL')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "logicAppName": {
+            "value": "[parameters('logicAppName')]"
+          },
+          "logicAppLocation": {
+            "value": "[variables('locationLUT')[resourceGroup().location]]"
+          },
+          "functionAppName": {
+            "value": "[parameters('functionAppName')]"
+          },
+          "functionName": {
+            "value": "[variables('functionName')]"
+          },
+          "emailRecipient": {
+            "value": "[parameters('emailRecipient')]"
+          },
+          "azureblob_1_accountName": {
+            "value": "[parameters('imagesStorageAccountName')]"
+          },
+          "azureblob_1_accessKey": {
+            "value": "[listKeys(variables('imagesStorageAccountId'), '2017-10-01').keys[0].value]"
           }
         }
       }

@@ -35,7 +35,7 @@
     "storageAccountType": "Standard_LRS",
     "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'azfunctions')]",
     "storageAccountId": "[concat(resourceGroup().id, '/providers/', 'Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
-    "concatArraysTemplateURL": "[concat(parameters('artifactsLocation'), '/nested-templates/concat-arrays.json')]"
+    "concatArraysTemplateURL": "[concat(parameters('artifactsLocation'), '/OceanDebrisInfrastructure/nested-templates/concat-arrays.json')]"
   },
   "resources": [
     {
