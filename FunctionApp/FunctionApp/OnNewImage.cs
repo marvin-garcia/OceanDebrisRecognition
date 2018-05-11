@@ -55,6 +55,8 @@ namespace AerialObjectRecognitionFunction
             }
             catch (Exception e)
             {
+                telemetryClient.TrackException(e);
+
                 throw e;
             }
         }
