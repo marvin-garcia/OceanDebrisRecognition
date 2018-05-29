@@ -103,7 +103,7 @@
                   {
                     "equals": [
                       "@body('apiOnNewImagepost')?['ObjectFound']",
-                      "tr"
+                      true
                     ]
                   }
                 ]
@@ -173,23 +173,23 @@
         "parameters": {
           "$connections": {
             "value": {
-              "azureblob": {
-                "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', parameters('logicAppLocation'), '/managedApis/', 'azureblob')]",
-                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('azureblob_1_Connection_Name'))]",
-                "connectionName": "[parameters('azureblob_1_Connection_Name')]"
-              },
               "office365": {
                 "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', parameters('logicAppLocation'), '/managedApis/', 'office365')]",
                 "connectionId": "[resourceId('Microsoft.Web/connections', parameters('office365_1_Connection_Name'))]",
                 "connectionName": "[parameters('office365_1_Connection_Name')]"
+              },
+              "azureblob": {
+                "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', parameters('logicAppLocation'), '/managedApis/', 'azureblob')]",
+                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('azureblob_1_Connection_Name'))]",
+                "connectionName": "[parameters('azureblob_1_Connection_Name')]"
               }
             }
           }
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Web/connections', parameters('azureblob_1_Connection_Name'))]",
-        "[resourceId('Microsoft.Web/connections', parameters('office365_1_Connection_Name'))]"
+        "[resourceId('Microsoft.Web/connections', parameters('office365_1_Connection_Name'))]",
+        "[resourceId('Microsoft.Web/connections', parameters('azureblob_1_Connection_Name'))]"
       ]
     },
     {
