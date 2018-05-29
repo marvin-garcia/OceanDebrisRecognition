@@ -1,21 +1,20 @@
 using System;
 using System.Configuration;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.ApplicationInsights;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
+using Microsoft.Cognitive.CustomVision.Prediction;
+using Microsoft.Cognitive.CustomVision.Prediction.Models;
 using Newtonsoft.Json;
 
 namespace AerialObjectRecognitionFunction
 {
     public static class OnNewImage
     {
-        private static TelemetryClient telemetryClient = new TelemetryClient(
-            new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration(
-                ConfigurationManager.AppSettings["APPINSIGHTS_INSTRUMENTATIONKEY"]));
-
         [FunctionName("OnNewImage")]
         public static async Task<object> Run([HttpTrigger(WebHookType = "genericJson")]HttpRequestMessage req, TraceWriter log)
         {
@@ -25,40 +24,85 @@ namespace AerialObjectRecognitionFunction
 
                 // Get request body
                 dynamic data = await req.Content.ReadAsAsync<object>();
-                log.Info(data.ToString());
-
-                // Get image url
+                
+                // Complete image url
                 string imagePath = data.path;
                 string imageUrl = $"https://{ConfigurationManager.AppSettings["ImagesStorageAccountName"]}.blob.core.windows.net{imagePath}";
-
                 log.Info(imageUrl);
 
-                // Get image prediction results
-                var predictionResult = await ImagePredictor.PredictImageUrl(imageUrl);
+                // evaluate image
+                bool objectFound = await ObjectFound(imageUrl);
+                log.Info($"object found? {objectFound}");
 
-                // Validate image
-                bool objectFound = ImagePredictor.ValidateImagePrediction(predictionResult);
+                // Track event on Application Insights
+                string instrumentationKey = ConfigurationManager.AppSettings["APPINSIGHTS_INSTRUMENTATIONKEY"];
+
+                if (!string.IsNullOrEmpty(instrumentationKey))
+                {
+                    log.Info("Tracking event to Application Insights");
+
+                    TelemetryClient _telemetryClient = new TelemetryClient(
+                        new Microsoft.ApplicationInsights.Extensibility.TelemetryConfiguration(instrumentationKey));
+
+                    if (objectFound)
+                        _telemetryClient.TrackEvent("Object");
+                    else
+                        _telemetryClient.TrackEvent("Oean");
+                }
+
+                // Create output object
                 Models.Output output = new Models.Output()
                 {
                     ObjectFound = objectFound,
                     ImageUrl = imageUrl,
                 };
 
-                // Track event on Application Insights
-                if (objectFound)
-                    telemetryClient.TrackEvent("Object");
-                else
-                    telemetryClient.TrackEvent("Oean");
-
                 // return result
                 return req.CreateResponse(HttpStatusCode.OK, output);
             }
             catch (Exception e)
             {
-                telemetryClient.TrackException(e);
-
                 throw e;
             }
+        }
+
+        /// <summary>
+        /// Uses Cognitive Services Custom Vision API to determine whether an object was found in an image
+        /// with some degree of certainty
+        /// </summary>
+        /// <param name="imageUrl"></param>
+        /// <returns>Boolean</returns>
+        private static async Task<bool> ObjectFound(string imageUrl, double minimumScore = 0.5)
+        {
+            bool objectFound = false;
+
+            try
+            {
+                // Initialize prediction endpoint
+                PredictionEndpoint predictionEndpoint = new PredictionEndpoint()
+                {
+                    ApiKey = ConfigurationManager.AppSettings["CustomVisionApiKey"]
+                };
+
+                // Call custom vision prediction API to predict image
+                ImagePredictionResultModel predictionResult = await predictionEndpoint.PredictImageUrlAsync(
+                    new Guid(ConfigurationManager.AppSettings["CustomVisionProjectId"]),
+                    new ImageUrl(imageUrl));
+
+                // Query for the object tag
+                var objectTag = predictionResult.Predictions.Where(x => x.Tag == "Object").FirstOrDefault();
+
+                // Check if the object tag probability surpassed the minimum score
+                if (objectTag != null && objectTag.Probability >= minimumScore)
+                    objectFound = true;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+
+            // Return result
+            return objectFound;
         }
     }
 }
