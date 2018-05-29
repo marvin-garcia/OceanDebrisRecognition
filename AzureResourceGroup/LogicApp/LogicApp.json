@@ -17,18 +17,6 @@
         "description": "Location of the Logic App."
       }
     },
-    "functionAppName": {
-      "type": "string",
-      "metadata": {
-        "description": "Function app name"
-      }
-    },
-    "functionName": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of the Azure function to call to execute the business logic"
-      }
-    },
     "emailRecipient": {
       "type": "string",
       "defaultValue": "magar@microsoft.com",
@@ -101,9 +89,9 @@
                 "body": {
                   "path": "@triggerBody()?['Path']"
                 },
-                "uri": "[concat('https://', parameters('functionAppName'), '.azurewebsites.net/api/', parameters('functionName'))]",
+                "uri": "https://DebrisRecognitionFunction.azurewebsites.net/api/OnNewImage",
                 "functionApp": {
-                  "id": "[resourceId('Microsoft.Web/sites', parameters('functionAppName'))]"
+                  "id": "/subscriptions/f0cf2edb-86a7-44b6-9c02-9c5fee5c618d/resourceGroups/DebrisRecognitionRG/providers/Microsoft.Web/sites/DebrisRecognitionFunction"
                 }
               },
               "runAfter": {}
@@ -115,7 +103,7 @@
                   {
                     "equals": [
                       "@body('apiOnNewImagepost')?['ObjectFound']",
-                      true
+                      "tr"
                     ]
                   }
                 ]
@@ -133,7 +121,7 @@
                     "body": {
                       "To": "[parameters('emailRecipient')]",
                       "Subject": "Some debris was found in the water",
-                      "Body": "An object was found in one of the images.\n\nImage URL:@{body('apiOnNewImagepost')?['ImageUrl']}"
+                      "Body": "An object was found in one of the images.\n\nImage URL: @{body('apiOnNewImagepost')?['ImageUrl']}"
                     },
                     "path": "/Mail"
                   },
